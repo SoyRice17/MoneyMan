@@ -1,12 +1,27 @@
 const app = document.getElementById('app');
 
 // 데이터 관리
-let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
-let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+let incomes = [];
+let expenses = [];
+
+function loadData() {
+    fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            incomes = data.incomes || [];
+            expenses = data.expenses || [];
+            navigate(window.location.hash);
+        });
+}
 
 function saveData() {
-    localStorage.setItem('incomes', JSON.stringify(incomes));
-    localStorage.setItem('expenses', JSON.stringify(expenses));
+    fetch('/api/data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ incomes, expenses }),
+    });
 }
 
 function renderHome() {
@@ -94,3 +109,6 @@ function navigate(route) {
 
 window.addEventListener('hashchange', () => navigate(window.location.hash));
 navigate(window.location.hash || '#home');
+
+// 페이지 로드 시 데이터 불러오기
+loadData();
